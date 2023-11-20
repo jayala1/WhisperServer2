@@ -1,0 +1,41 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ name }}</h1>
+
+    <!-- File Upload Form -->
+    <form action="{{ url_for('transcribe_audio') }}" method="post" enctype="multipart/form-data">
+        <label for="audio_file">Upload Audio File:</label>
+        <input type="file" name="audio_file" id="audio_file" accept="audio/*" required>
+        <input type="submit" value="Upload and Transcribe">
+    </form>
+
+    <h2>Your Audio Records:</h2>
+    <ul>
+        {% for record in audio_records %}
+        <li>
+            <strong>{{ record.title }}</strong><br>
+            Transcription: {{ record.transcription }}<br>
+            Summary: {{ record.summary }}
+            <!-- Summarize Button -->
+            <form action="{{ url_for('summarize_transcription', record_id=record.id) }}" method="post">
+                <input type="submit" value="Generate Summary">
+            </form>
+            <!-- Delete Button -->
+            <form action="{{ url_for('delete_record', record_id=record.id) }}" method="post">
+                <input type="submit" value="Delete Record">
+            </form>
+        </li>
+        {% else %}
+        <p>No records found.</p>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
