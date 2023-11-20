@@ -1,6 +1,8 @@
 # WhisperServer2
 Ensure you have python 3.11 installed
 
+Ensure FFMPEG is also installed. https://ffmpeg.org/download.html
+
 Download and extract
 
 open cmd and ensure you are in root of the extracted folder
@@ -13,7 +15,7 @@ This will create a virtual enviroment for the python code to run you should see 
 
 run the pip install -r requirements.txt This will install all the required packages for the virtual env to run
 
-after that, run python init_db.py to initialize the db and create it.
+after that, run python init_db.py to initialize the db and create it. This will also download the models for whisper and summarization.
 
 Then run python run.py This might take a while to start up fully to get all the models loaded or downloaded
 
