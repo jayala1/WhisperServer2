@@ -1,4 +1,11 @@
 # WhisperServer2
+
+# Description
+AI generated code using GPT-4 for a web server with login page. Upload your audio. Get it transcribed by Distil-Whisper, and the get it summarized by GPT4All python bindings to an open source LLM.
+
+
+# Instructions Work in progress and summarization does not work. Security features and other error handling needs better implementation
+
 Ensure you have python 3.11 installed
 
 Ensure FFMPEG is also installed. https://ffmpeg.org/download.html
