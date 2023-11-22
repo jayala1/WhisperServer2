@@ -6,12 +6,14 @@ from .models import User, AudioRecord
 from flask_login import login_user, login_required, logout_user,current_user
 from werkzeug.utils import secure_filename
 from .transcription_service import transcribe_audio_file
-from gpt4all import GPT4All
+import openai
 import logging
+import requests
 import os
 
-model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf")
-logging.basicConfig(level=logging.INFO)
+# Configure OpenAI to use your local server
+openai.api_base = 'http://192.168.1.200:1234/v1'  # Set to your LM Studio server address
+openai.api_key = "" # no need for an API key
 
 # Configuration for uploads
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'UPLOAD_FOLDER')  # You should change this to a folder on your server
@@ -112,30 +114,43 @@ def transcribe_audio():
 @login_required
 def summarize_transcription(record_id):
     audio_record = AudioRecord.query.get_or_404(record_id)
-
-    # Formulating a more directive prompt for summarization using an f-string for consistency
-    prompt = f"Please summarize the following text: {audio_record.transcription}"
-
-    logging.info("Sending prompt to model: %s", prompt)
+    
+    # Construct the payload for the POST request
+    payload = {
+        "model": "local-model",
+        "messages": [
+            {"role": "system", "content": "Please summarize the following text:"},
+            {"role": "user", "content": audio_record.transcription}
+        ]
+    }
 
     try:
-        summary_result = model.generate(prompt, max_tokens=128)
-        # Assuming the summary is the first element in the result
-        summary = summary_result[0]['generated_text'] if summary_result else "Summary generation failed"
-        logging.info("Model response: %s", summary)
-        
-        # Check if summary generation was successful
-        if summary != "Summary generation failed":
-            audio_record.summary = summary
+        # Send the POST request to the LM Studio server
+        response = requests.post('http://192.168.1.200:1234/v1/chat/completions', json=payload)
+        response_data = response.json()
+        logging.info(f"Server response: {response_data}")
+
+        # Extract the summary content from the response
+        if response.status_code == 200 and 'choices' in response_data and response_data['choices']:
+            summary_content = response_data['choices'][0]['message']['content']
+            logging.info(f"Summary content: {summary_content}")
+            
+            # Save the summary to the database
+            audio_record.summary = summary_content
             db.session.commit()
             flash('Summary generated successfully!', 'success')
         else:
+            logging.error(f"Failed to generate summary. Status code: {response.status_code}")
             flash('Summary generation failed.', 'error')
+
     except Exception as e:
-        logging.error("Error during summary generation: %s", str(e))
+        logging.error(f"Exception occurred: {e}")
         flash('An error occurred during summary generation.', 'error')
 
     return redirect(url_for('dashboard'))
+
+
+
 
 @app.route('/delete_record/<int:record_id>', methods=['POST'])
 @login_required
