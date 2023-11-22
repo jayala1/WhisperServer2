@@ -1,14 +1,18 @@
 # WhisperServer2
 
 # Description
-AI generated code using GPT-4 for a web server with login page. Upload your audio. Get it transcribed by Distil-Whisper, and the get it summarized by GPT4All python bindings to an open source LLM.
+AI generated code using GPT-4 for a web server with login page. Upload your audio. Get it transcribed by Distil-Whisper, and the get it summarized by LMstudio inference server python bindings to an open source LLM.
 
 
-# Instructions Work in progress and summarization does not work. Security features and other error handling needs better implementation
+# Instructions Work in progress.
 
 Ensure you have python 3.11 installed
 
 Ensure FFMPEG is also installed. https://ffmpeg.org/download.html
+
+Download LMStudio, select your model, go to the server section and start the inference server. Ensure you update the routes.py with the IP address of the computer that is running the LMstudio inference server
+
+Also ensure you open the port for UDP and TCP(just in case) to that machine for whatever port you are using for the lmstudio inference server.
 
 Download and extract
 
@@ -30,4 +34,14 @@ Then go to address 127.0.0.1:5000/register Add an account
 
 Then go to address 127.0.0.1:5000/login to login to account
 
-Limited error handling
+# Changes needed
+
+- Better error handling
+
+- Queuing up jobs for transcribing if being used by more than one person.
+
+- Checking preformance
+
+
+
+
